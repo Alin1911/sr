@@ -32,7 +32,7 @@
                     <ul class="navbar-nav me-auto">
 
                     </ul>
-                    <ul>
+                    <ul class="m-0">
                         <form action="/event/search" method="POST" class="d-flex">
                             @csrf 
                             <div class="form-group mb-0 me-2">
