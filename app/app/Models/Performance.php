@@ -8,6 +8,11 @@ class Performance extends Model
 {
     protected $table = 'performance';
 
+    protected $casts = [
+        'starting_date' => 'datetime',
+        'ending_date' => 'datetime'
+    ];
+
     public function promoter()
     {
         return $this->belongsTo(Promoter::class);
@@ -22,6 +27,7 @@ class Performance extends Model
     {
         return $this->belongsTo(Hall::class);
     }
+    
 
     public function scopeActive($query)
     {

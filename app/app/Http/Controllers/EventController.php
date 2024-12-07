@@ -10,6 +10,7 @@ use App\Models\Performance;
 use App\Models\Ticket;
 use App\Models\Transaction;
 use Carbon\Carbon;
+use App\Models\Promoter;
 
 class EventController extends Controller
 {
@@ -24,16 +25,26 @@ class EventController extends Controller
         $popularEvents->load('category');
         
         $popularHalls = Hall::getPopularHalls($cityId, $categoryId);
-
         $hallIds = $popularHalls->pluck('id')->toArray();
-
+        
         $popularPerformancesByHall = Performance::active()
             ->whereIn('hall_id', $hallIds)  
             ->orderByRaw("FIELD(hall_id, " . implode(',', $hallIds) . ")")
             ->limit(20)
             ->get()
             ->load('event','hall');
+        
+        $popularPromoters = Promoter::getPopularPromoters($cityId, $categoryId);
 
-        return view('events.index', compact('popularEvents', 'popularPerformancesByHall'));
+        $promoterIds = $popularPromoters->pluck('id')->toArray();
+        $popularPerformancesByPromoter = Performance::active()
+            ->whereIn('promoter_id', $promoterIds)
+            ->orderByRaw("FIELD(promoter_id, " . implode(',', $promoterIds) . ")")
+            ->limit(20)
+            ->get()
+            ->load('event','promoter');
+        
+        return view('events.index', compact('popularEvents', 'popularPerformancesByHall', 'popularPromoters', 'popularPerformancesByPromoter'));
     }
+
 }

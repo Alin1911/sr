@@ -59,6 +59,19 @@
                             </div>
 
                             <div class="row mb-3">
+                                <label for="category_id" class="col-md-4 col-form-label text-md-end">Category</label>
+
+                                <div class="col-md-6">
+                                    <select class="form-control" name="category_id" id="category_id">
+                                        <option></option>
+                                        @foreach ($categories as $category)
+                                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
                                 <label for="password"
                                     class="col-md-4 col-form-label text-md-end">{{ __('Password') }}</label>
 

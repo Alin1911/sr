@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class Promoter extends Model
 {
-    protected $table = 'promoter';
+    protected $table = 'promoters';
     
     public function performances()
     {
