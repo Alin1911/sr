@@ -5,6 +5,7 @@ use App\Http\Controllers\EventController;
 
 Route::get('/', [EventController::class, 'index'])->name('events.index');
 Route::any('/event/search', [EventController::class, 'search'])->name('search');
+Route::get('/event/{id}', [EventController::class, 'show'])->name('search');
 
 Auth::routes();
 

@@ -15,6 +15,14 @@ use Illuminate\Support\Str;
 
 class EventController extends Controller
 {
+    public function show($id)
+    {
+        $event = Event::findOrFail($id);
+        $event->load('performances.hall.city');
+
+        return view('events.show')->with('event', $event);
+    }
+
     public function index(Request $request)
     {
         $cityId = $request->input('city_id');
