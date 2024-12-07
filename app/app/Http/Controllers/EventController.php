@@ -13,26 +13,27 @@ use Carbon\Carbon;
 
 class EventController extends Controller
 {
-    public function index()
-    {
-        // $performances = Performance::all();
-        // foreach ($performances as $performance) {
-        //     $startingDate = Carbon::parse($performance->starting_date);
-        //     $endingDate = Carbon::parse($performance->ending_date);
-        //     // Adaugă 1 an și 6 luni la fiecare dată
-        //     $startingDate->addYear()->addMonths(6);
-        //     $endingDate->addYear()->addMonths(6);
-    
-        //     // Actualizează datele în model
-        //     $performance->starting_date = $startingDate;
-        //     $performance->ending_date = $endingDate;
-    
-        //     // Salvează modificările în baza de date
-        //     $performance->save();
 
-        // }
-        $performance = Performance::active()->get();
-        $events = Event::whereIn('id', $performance->pluck('event_id'))->paginate(10);
-        return view('events.index')->with('events', $events);
+    public function index(Request $request)
+    {
+        $cityId = $request->input('city_id');
+        $categoryId = $request->input('category_id');
+        
+        $eventsQuery = Event::getPopularEvents($cityId, $categoryId);
+        $popularEvents = $eventsQuery->limit(20)->get();
+        $popularEvents->load('category');
+        
+        $popularHalls = Hall::getPopularHalls($cityId, $categoryId);
+
+        $hallIds = $popularHalls->pluck('id')->toArray();
+
+        $popularPerformancesByHall = Performance::active()
+            ->whereIn('hall_id', $hallIds)  
+            ->orderByRaw("FIELD(hall_id, " . implode(',', $hallIds) . ")")
+            ->limit(20)
+            ->get()
+            ->load('event','hall');
+
+        return view('events.index', compact('popularEvents', 'popularPerformancesByHall'));
     }
 }

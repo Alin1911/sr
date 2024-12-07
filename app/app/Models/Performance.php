@@ -18,8 +18,14 @@ class Performance extends Model
         return $this->belongsTo(Event::class);
     }
 
+    public function hall()
+    {
+        return $this->belongsTo(Hall::class);
+    }
+
     public function scopeActive($query)
     {
-        return $query->where('ending_date', '>', date('Y-m-d H:i:s'));
+        return $query->where('ending_date', '>', date('Y-m-d H:i:s'))
+        ->where('starting_date', '<', now()->addMonth(2));
     }
 }

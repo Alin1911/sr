@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Event;
+use App\Models\Hall;
+use App\Models\Promoter;
 use Illuminate\Http\Request;
+use App\Models\Performance;
 
 class HomeController extends Controller
 {
@@ -23,6 +27,10 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $performance = Performance::active()->get();
+        $events = Event::whereIn('id', $performance->pluck('event_id'))->get()->sortByDesc('popularity_score')->paginate(10)->load('category');
+        $events = $events->sortByDesc('popularity_score');
+        dd($events);
+        return view('events.index')->with('events', $events);        return view('home');
     }
 }
