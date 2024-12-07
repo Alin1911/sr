@@ -37,7 +37,7 @@
                             @csrf 
                             <div class="form-group mb-0 me-2">
                               <label for="search" class="visually-hidden">Search Events</label>
-                              <input type="text" class="form-control" id="search" name="search" placeholder="event" @if(isset($term)) value="{{$term}}" @endif>
+                              <input type="text" class="form-control" id="search" name="search" placeholder="event" @if(isset($term)) value="{{$term}}" @endif required>
                             </div>
                             <button type="submit" class="btn btn-primary">Search</button>
                           </form>

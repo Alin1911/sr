@@ -27,6 +27,14 @@ class Performance extends Model
     {
         return $this->belongsTo(Hall::class);
     }
+
+    public function isActive()
+    {
+        if($this->ending_date->gt(now())){
+            return true;
+        }
+        return false;
+    }
     
 
     public function scopeActive($query)

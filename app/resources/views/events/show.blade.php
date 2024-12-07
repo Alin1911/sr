@@ -12,14 +12,16 @@
             </div>
         </div>
         @foreach ($event->performances as $p)
-            <div class="row shadow rounded  my-3 py-3">
-                <div class="col-3 text-center">
-                    {{ $p->hall->name }}
+            @if ($p->isActive())
+                <div class="row shadow rounded  my-3 py-3">
+                    <div class="col-3 text-center">
+                        {{ $p->hall->name }}
+                    </div>
+                    <div class="col-3 text-center">
+                        {{ $p->starting_date->format('Y-m-d H:i') }}
+                    </div>
                 </div>
-                <div class="col-3 text-center">
-                    {{ $p->starting_date->format('Y-m-d H:i') }}
-                </div>
-            </div>
+            @endif
         @endforeach
     </div>
 @endsection
