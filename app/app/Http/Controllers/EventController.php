@@ -19,21 +19,21 @@ class EventController extends Controller
     {
         $cityId = $request->input('city_id');
         $categoryId = $request->input('category_id');
-        
+
         $eventsQuery = Event::getPopularEvents($cityId, $categoryId);
         $popularEvents = $eventsQuery->limit(20)->get();
         $popularEvents->load('category');
-        
+
         $popularHalls = Hall::getPopularHalls($cityId, $categoryId);
         $hallIds = $popularHalls->pluck('id')->toArray();
-        
+
         $popularPerformancesByHall = Performance::active()
-            ->whereIn('hall_id', $hallIds)  
+            ->whereIn('hall_id', $hallIds)
             ->orderByRaw("FIELD(hall_id, " . implode(',', $hallIds) . ")")
             ->limit(20)
             ->get()
-            ->load('event','hall');
-        
+            ->load('event', 'hall');
+
         $popularPromoters = Promoter::getPopularPromoters($cityId, $categoryId);
 
         $promoterIds = $popularPromoters->pluck('id')->toArray();
@@ -42,9 +42,19 @@ class EventController extends Controller
             ->orderByRaw("FIELD(promoter_id, " . implode(',', $promoterIds) . ")")
             ->limit(20)
             ->get()
-            ->load('event','promoter');
-        
+            ->load('event', 'promoter');
+
         return view('events.index', compact('popularEvents', 'popularPerformancesByHall', 'popularPromoters', 'popularPerformancesByPromoter'));
     }
 
+    public function search(Request $request)
+    {
+        $term = $request->get('search', "");
+        if (!empty($term)) {
+            $events = Event::active()->where('title', 'like', "%$term%")->get();
+        } else {
+            $events = [];
+        }
+        return view('events.search')->with('term', $term)->with('events', $events);
+    }
 }

@@ -32,6 +32,16 @@
                     <ul class="navbar-nav me-auto">
 
                     </ul>
+                    <ul>
+                        <form action="/event/search" method="POST" class="d-flex">
+                            @csrf 
+                            <div class="form-group mb-0 me-2">
+                              <label for="search" class="visually-hidden">Search Events</label>
+                              <input type="text" class="form-control" id="search" name="search" placeholder="event" @if(isset($term)) value="{{$term}}" @endif>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Search</button>
+                          </form>
+                    </ul>
 
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ms-auto">

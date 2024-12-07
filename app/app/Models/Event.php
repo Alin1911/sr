@@ -21,7 +21,7 @@ class Event extends Model
     {
         return $query->whereHas('performances', function ($query) {
             $query->where('ending_date', '>', now())
-            ->where('starting_date', '<', now()->addMonth(2));
+                ->where('starting_date', '<', now()->addMonth(2));
         });
     }
 

@@ -32,21 +32,21 @@ class HomeController extends Controller
         $user = Auth::user();
         $cityId = $user->city_id;
         $categoryId = $user->category_id;
-        
+
         $eventsQuery = Event::getPopularEvents($cityId, $categoryId);
         $popularEvents = $eventsQuery->limit(20)->get();
         $popularEvents->load('category');
-        
+
         $popularHalls = Hall::getPopularHalls($cityId, $categoryId);
         $hallIds = $popularHalls->pluck('id')->toArray();
-        
+
         $popularPerformancesByHall = Performance::active()
-            ->whereIn('hall_id', $hallIds)  
+            ->whereIn('hall_id', $hallIds)
             ->orderByRaw("FIELD(hall_id, " . implode(',', $hallIds) . ")")
             ->limit(20)
             ->get()
-            ->load('event','hall');
-        
+            ->load('event', 'hall');
+
         $popularPromoters = Promoter::getPopularPromoters($cityId, $categoryId);
 
         $promoterIds = $popularPromoters->pluck('id')->toArray();
@@ -55,8 +55,9 @@ class HomeController extends Controller
             ->orderByRaw("FIELD(promoter_id, " . implode(',', $promoterIds) . ")")
             ->limit(20)
             ->get()
-            ->load('event','promoter');
-        
-        return view('home', compact('popularEvents', 'popularPerformancesByHall', 'popularPromoters', 'popularPerformancesByPromoter'));     return view('home');
+            ->load('event', 'promoter');
+
+        return view('home', compact('popularEvents', 'popularPerformancesByHall', 'popularPromoters', 'popularPerformancesByPromoter'));
+        return view('home');
     }
 }

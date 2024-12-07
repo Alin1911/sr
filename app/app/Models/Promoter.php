@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 class Promoter extends Model
 {
     protected $table = 'promoters';
-    
+
     public function performances()
     {
         return $this->hasMany(Performance::class, 'promoter_id');
