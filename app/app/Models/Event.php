@@ -25,7 +25,7 @@ class Event extends Model
         });
     }
 
-    public static function getPopularEvents($cityId = null, $categoryId = null)
+    public static function getPopularEvents($cityId = null, $categoryId = null, $promoterId = null, $hallId = null)
     {
         $ticketScore = 2;
         $deletedTicketScore = 1;
@@ -50,6 +50,14 @@ class Event extends Model
 
         if ($categoryId) {
             $query->where('events.category_id', $categoryId);
+        }
+
+        if ($hallId) {
+            $query->where('performance.hall_id', $hallId);
+        }
+
+        if ($promoterId) {
+            $query->where('performance.promoter_id', $promoterId);
         }
 
         return $query;

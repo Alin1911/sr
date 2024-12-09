@@ -2,23 +2,25 @@
 
 @section('content')
     <div class="container">
+
         <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">{{ __('Dashboard') }}</div>
-
-                    <div class="card-body">
-                        @if (session('status'))
-                            <div class="alert alert-success" role="alert">
-                                {{ session('status') }}
+            <h3 class="mb-4">Popular Events For User</h3>
+            @foreach ($popularByUser as $event)
+                <div class="col-4 col-sm-4 col-md-3 col-xl-2">
+                    <a href="/event/{{ $event['id'] }}">
+                        <div class="card mb-4">
+                            <img src="{{ $event['image_url'] }}" class="card-img-top" alt="{{ $event['title'] }}"
+                                style="max-height: 400px;">
+                            <div class="card-body">
+                                <h6 class="caerd-title">{{ $event['title'] }}</h6>
+                                <p> Score: {{ $event['popularity_score'] }}</p>
                             </div>
-                        @endif
-
-                        {{ __('You are logged in!') }}
-                    </div>
+                        </div>
+                    </a>
                 </div>
-            </div>
+            @endforeach
         </div>
+
         <div class="row justify-content-center">
             <h3 class="mb-4">Popular Events</h3>
             @foreach ($popularEvents as $event)
