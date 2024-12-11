@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Event;
@@ -32,47 +33,47 @@ class HomeController extends Controller
         $cityId = $user->city_id;
         $categoryId = $user->category_id;
 
-        // Cache pentru evenimente populare
         $popularEvents = Cache::remember("popular_events_{$cityId}_{$categoryId}", now()->addMinutes(30), function () use ($cityId, $categoryId) {
             $eventsQuery = Event::getPopularEvents($cityId, $categoryId);
             return $eventsQuery->limit(20)->get()->load('category');
         });
 
-        // Cache pentru sălile populare
         $popularHalls = Cache::remember("popular_halls_{$cityId}_{$categoryId}", now()->addMinutes(30), function () use ($cityId, $categoryId) {
             return Hall::getPopularHalls($cityId, $categoryId);
         });
 
-        // Cache pentru performanțele populare pe săli
+        $popularPerformancesByHall = [];
         $hallIds = $popularHalls->pluck('id')->toArray();
-        $hallCacheKey = 'popular_performances_by_hall_' . md5(implode('_', $hallIds)); // Utilizăm un hash MD5 pentru a face cheia mai mică
-        $popularPerformancesByHall = Cache::remember($hallCacheKey, now()->addMinutes(30), function () use ($hallIds) {
-            return Performance::active()
-                ->whereIn('hall_id', $hallIds)
-                ->orderByRaw("FIELD(hall_id, " . implode(',', $hallIds) . ")")
-                ->limit(20)
-                ->get()
-                ->load('event', 'hall');
-        });
+        if (count($hallIds)) {
+            $hallCacheKey = 'popular_performances_by_hall_' . md5(implode('_', $hallIds));
+            $popularPerformancesByHall = Cache::remember($hallCacheKey, now()->addMinutes(30), function () use ($hallIds) {
+                return Performance::active()
+                    ->whereIn('hall_id', $hallIds)
+                    ->orderByRaw("FIELD(hall_id, " . implode(',', $hallIds) . ")")
+                    ->limit(20)
+                    ->get()
+                    ->load('event', 'hall');
+            });
+        }
 
-        // Cache pentru promotorii populari
         $popularPromoters = Cache::remember("popular_promoters_{$cityId}_{$categoryId}", now()->addMinutes(30), function () use ($cityId, $categoryId) {
             return Promoter::getPopularPromoters($cityId, $categoryId);
         });
 
-        // Cache pentru performanțele populare pe promotori
+        $popularPerformancesByPromoter = [];
         $promoterIds = $popularPromoters->pluck('id')->toArray();
-        $promoterCacheKey = 'popular_performances_by_promoter_' . md5(implode('_', $promoterIds)); // Utilizăm un hash MD5 pentru a face cheia mai mică
-        $popularPerformancesByPromoter = Cache::remember($promoterCacheKey, now()->addMinutes(30), function () use ($promoterIds) {
-            return Performance::active()
-                ->whereIn('promoter_id', $promoterIds)
-                ->orderByRaw("FIELD(promoter_id, " . implode(',', $promoterIds) . ")")
-                ->limit(20)
-                ->get()
-                ->load('event', 'promoter');
-        });
+        if (count($promoterIds)) {
+            $promoterCacheKey = 'popular_performances_by_promoter_' . md5(implode('_', $promoterIds));
+            $popularPerformancesByPromoter = Cache::remember($promoterCacheKey, now()->addMinutes(30), function () use ($promoterIds) {
+                return Performance::active()
+                    ->whereIn('promoter_id', $promoterIds)
+                    ->orderByRaw("FIELD(promoter_id, " . implode(',', $promoterIds) . ")")
+                    ->limit(20)
+                    ->get()
+                    ->load('event', 'promoter');
+            });
+        }
 
-        // Cache pentru evenimente populare bazate pe preferințele utilizatorului
         $popularByUser = [];
         if ($user->city_id_e) {
             $cityCacheKey = "popular_events_user_city_{$user->id}";
@@ -99,7 +100,6 @@ class HomeController extends Controller
             }), $popularByUser);
         }
 
-        // Returnează view-ul cu datele cache-uite
         return view('home', compact('popularEvents', 'popularPerformancesByHall', 'popularPromoters', 'popularPerformancesByPromoter', 'popularByUser'));
     }
 }
