@@ -13,13 +13,25 @@
         </div>
         @foreach ($event->performances as $p)
             @if ($p->isActive())
-                <div class="row shadow rounded  my-3 py-3">
+                <div class="row shadow rounded my-3 py-3">
                     <div class="col-3 text-center">
                         {{ $p->hall->name }}
                     </div>
                     <div class="col-3 text-center">
                         {{ $p->starting_date->format('Y-m-d H:i') }}
                     </div>
+                    @if(auth()->check())
+                    <div class="col-3 text-center">
+                        <form action="{{ url('/buy/' . $p->id) }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="btn btn-success">Buy</button>
+                        </form>
+                        <form action="{{ url('/cart/' . $p->id) }}" method="POST" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">Add to Cart</button>
+                        </form>
+                    </div>
+                    @endif
                 </div>
             @endif
         @endforeach

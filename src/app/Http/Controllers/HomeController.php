@@ -35,7 +35,7 @@ class HomeController extends Controller
 
         $popularEvents = Cache::remember("popular_events_{$cityId}_{$categoryId}", now()->addMinutes(30), function () use ($cityId, $categoryId) {
             $eventsQuery = Event::getPopularEvents($cityId, $categoryId);
-            return $eventsQuery->limit(20)->get()->load('category');
+            return $eventsQuery->limit(20)->distinct()->get()->load('category');
         });
 
         $popularHalls = Cache::remember("popular_halls_{$cityId}_{$categoryId}", now()->addMinutes(30), function () use ($cityId, $categoryId) {
@@ -51,7 +51,7 @@ class HomeController extends Controller
                     ->whereIn('hall_id', $hallIds)
                     ->orderByRaw("FIELD(hall_id, " . implode(',', $hallIds) . ")")
                     ->limit(20)
-                    ->get()
+                    ->distinct()->get()
                     ->load('event', 'hall');
             });
         }
@@ -69,36 +69,69 @@ class HomeController extends Controller
                     ->whereIn('promoter_id', $promoterIds)
                     ->orderByRaw("FIELD(promoter_id, " . implode(',', $promoterIds) . ")")
                     ->limit(20)
-                    ->get()
+                    ->distinct()->get()
                     ->load('event', 'promoter');
             });
         }
-
         $popularByUser = [];
+        $alreadyAddedEventIds = [];
+        
         if ($user->city_id_e) {
             $cityCacheKey = "popular_events_user_city_{$user->id}";
-            $popularByUser = array_merge(Cache::remember($cityCacheKey, now()->addMinutes(30), function () use ($user) {
-                return Event::getPopularEvents($user->city_id_e)->limit(5)->get()->toArray();
-            }), $popularByUser);
+            $events = Cache::remember($cityCacheKey, now()->addMinutes(30), function () use ($user, $alreadyAddedEventIds) {
+                return Event::getPopularEvents($user->city_id_e)
+                    ->whereNotIn('events.id', $alreadyAddedEventIds)
+                    ->limit(5)
+                    ->distinct()
+                    ->get()
+                    ->toArray();
+            });
+            $popularByUser = array_merge($popularByUser, $events);
+            $alreadyAddedEventIds = array_merge($alreadyAddedEventIds, array_column($events, 'id'));
         }
+        
         if ($user->category_id_e) {
             $categoryCacheKey = "popular_events_user_category_{$user->id}";
-            $popularByUser = array_merge(Cache::remember($categoryCacheKey, now()->addMinutes(30), function () use ($user) {
-                return Event::getPopularEvents(null, $user->category_id_e)->limit(5)->get()->toArray();
-            }), $popularByUser);
+            $events = Cache::remember($categoryCacheKey, now()->addMinutes(30), function () use ($user, $alreadyAddedEventIds) {
+                return Event::getPopularEvents(null, $user->category_id_e)
+                    ->whereNotIn('events.id', $alreadyAddedEventIds)
+                    ->limit(5)
+                    ->distinct()
+                    ->get()
+                    ->toArray();
+            });
+            $popularByUser = array_merge($popularByUser, $events);
+            $alreadyAddedEventIds = array_merge($alreadyAddedEventIds, array_column($events, 'id'));
         }
+        
         if ($user->promoter_id_e) {
             $promoterCacheKey = "popular_events_user_promoter_{$user->id}";
-            $popularByUser = array_merge(Cache::remember($promoterCacheKey, now()->addMinutes(30), function () use ($user) {
-                return Event::getPopularEvents(null, null, $user->promoter_id_e)->limit(5)->get()->toArray();
-            }), $popularByUser);
+            $events = Cache::remember($promoterCacheKey, now()->addMinutes(30), function () use ($user, $alreadyAddedEventIds) {
+                return Event::getPopularEvents(null, null, $user->promoter_id_e)
+                    ->whereNotIn('events.id', $alreadyAddedEventIds)
+                    ->limit(5)
+                    ->distinct()
+                    ->get()
+                    ->toArray();
+            });
+            $popularByUser = array_merge($popularByUser, $events);
+            $alreadyAddedEventIds = array_merge($alreadyAddedEventIds, array_column($events, 'id'));
         }
+        
         if ($user->hall_id_e) {
             $hallCacheKey = "popular_events_user_hall_{$user->id}";
-            $popularByUser = array_merge(Cache::remember($hallCacheKey, now()->addMinutes(30), function () use ($user) {
-                return Event::getPopularEvents(null, null, null, $user->hall_id_e)->limit(5)->get()->toArray();
-            }), $popularByUser);
+            $events = Cache::remember($hallCacheKey, now()->addMinutes(30), function () use ($user, $alreadyAddedEventIds) {
+                return Event::getPopularEvents(null, null, null, $user->hall_id_e)
+                    ->whereNotIn('events.id', $alreadyAddedEventIds)
+                    ->limit(5)
+                    ->distinct()
+                    ->get()
+                    ->toArray();
+            });
+            $popularByUser = array_merge($popularByUser, $events);
+            $alreadyAddedEventIds = array_merge($alreadyAddedEventIds, array_column($events, 'id'));
         }
+        
 
         return view('home', compact('popularEvents', 'popularPerformancesByHall', 'popularPromoters', 'popularPerformancesByPromoter', 'popularByUser'));
     }

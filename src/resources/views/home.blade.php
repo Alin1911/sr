@@ -4,6 +4,7 @@
     <div class="container">
 
         <div class="row justify-content-center">
+            @if(count($popularByUser))
             <h3 class="mb-4">Popular Events For User</h3>
             @foreach ($popularByUser as $event)
                 <div class="col-4 col-sm-4 col-md-3 col-xl-2">
@@ -19,6 +20,7 @@
                     </a>
                 </div>
             @endforeach
+            @endif
         </div>
 
         <div class="row justify-content-center">

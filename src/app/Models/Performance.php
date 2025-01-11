@@ -40,6 +40,6 @@ class Performance extends Model
     public function scopeActive($query)
     {
         return $query->where('ending_date', '>', date('Y-m-d H:i:s'))
-        ->where('starting_date', '<', now()->addMonth(2));
+        ->where('starting_date', '<', now()->addMonth(1));
     }
 }
